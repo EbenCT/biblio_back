@@ -1,0 +1,90 @@
+# Schema GraphQL para el sistema de biblioteca
+# Este es adicional a la API REST existente
+
+scalar DateTime
+
+# Tipos principales
+type Libro {
+    id: ID!
+    titulo: String!
+    autor: String!
+    categoria: String!
+    disponible: Boolean!
+    createdAt: DateTime
+    updatedAt: DateTime
+    prestamo: Prestamo
+}
+
+type Miembro {
+    id: ID!
+    nombre: String!
+    email: String!
+    telefono: String!
+    direccion: String!
+    fechaRegistro: DateTime
+    prestamos: [Prestamo!]
+}
+
+type Prestamo {
+    id: ID!
+    fechaPrestamo: DateTime!
+    fechaDevolucion: DateTime
+    estado: String!
+    miembro: Miembro!
+    libros: [Libro!]
+}
+
+# Tipos de entrada para mutations
+input LibroInput {
+    titulo: String!
+    autor: String!
+    categoria: String!
+    disponible: Boolean!
+}
+
+input MiembroInput {
+    nombre: String!
+    email: String!
+    telefono: String!
+    direccion: String!
+}
+
+input PrestamoInput {
+    miembroId: ID!
+    libroIds: [ID!]!
+}
+
+# Queries (consultas)
+type Query {
+    # Libros
+    libros: [Libro!]!
+    libro(id: ID!): Libro
+    librosPorCategoria(categoria: String!): [Libro!]!
+    librosDisponibles: [Libro!]!
+    
+    # Miembros
+    miembros: [Miembro!]!
+    miembro(id: ID!): Miembro
+    
+    # Prestamos
+    prestamos: [Prestamo!]!
+    prestamo(id: ID!): Prestamo
+    prestamosPorMiembro(miembroId: ID!): [Prestamo!]!
+}
+
+# Mutations (modificaciones)
+type Mutation {
+    # Libros
+    crearLibro(input: LibroInput!): Libro!
+    actualizarLibro(id: ID!, input: LibroInput!): Libro!
+    eliminarLibro(id: ID!): Boolean!
+    
+    # Miembros
+    crearMiembro(input: MiembroInput!): Miembro!
+    actualizarMiembro(id: ID!, input: MiembroInput!): Miembro!
+    eliminarMiembro(id: ID!): Boolean!
+    
+    # Prestamos
+    crearPrestamo(input: PrestamoInput!): Prestamo!
+    devolverLibro(prestamoId: ID!): Prestamo!
+}

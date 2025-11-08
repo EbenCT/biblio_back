@@ -1,0 +1,35 @@
+package com.biblioteca.domain.repository;
+
+import com.biblioteca.domain.model.Prestamo;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Repositorio JPA para Prestamo
+ * Generado automáticamente desde diagrama UML
+ */
+@Repository
+public interface PrestamoRepository extends JpaRepository<Prestamo, Long> {
+
+    // Métodos de consulta básicos
+
+    List<Prestamo> findByOrderByCreatedAtDesc();
+
+    List<Prestamo> findTop10ByOrderByCreatedAtDesc();
+
+    @Query("SELECT e FROM Prestamo e ORDER BY e.createdAt DESC")
+    List<Prestamo> findAllOrderedByDate();
+
+    // Buscar por ID con validación
+    @Query("SELECT e FROM Prestamo e WHERE e.id = :id")
+    Optional<Prestamo> findByIdSafe(@Param("id") Long id);
+
+
+    // TODO: Agregar métodos de consulta específicos según necesidades del negocio
+    // Ejemplo:
+    // List<Prestamo> findByNombreContaining(String nombre);
+}
