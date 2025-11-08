@@ -1,0 +1,1197 @@
+{
+	"info": {
+		"_postman_id": "graphql-biblioteca-api",
+		"name": "📚 GraphQL - Sistema Biblioteca",
+		"description": "Colección completa de consultas GraphQL para el sistema de biblioteca\n\n**Endpoints:**\n- GraphQL: `POST http://localhost:8080/graphql`\n- GraphiQL: `GET http://localhost:8080/graphiql`\n\n**Entidades disponibles:**\n- 📖 Libros (CRUD + consultas especiales)\n- 👥 Miembros (CRUD completo)\n- 📋 Préstamos (CRUD + gestión avanzada)\n- 👤 Usuarios (CRUD + operaciones específicas)\n- 🚪 Acceso Biblioteca (CRUD + ingreso/egreso móvil)\n- 🔐 Autenticación (login/registro)\n\n**Instrucciones:**\n1. Asegúrate de que el servidor esté corriendo en `http://localhost:8080`\n2. Para mutaciones que requieren autenticación, obtén un token con `login` primero\n3. Usa el token en el header `Authorization: Bearer <token>`",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔐 Autenticación",
+			"item": [
+				{
+					"name": "Login Usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation LoginUsuario($loginRequest: LoginRequest!) { login(loginRequest: $loginRequest) { token user { id email } } }\",\n  \"variables\": {\n    \"loginRequest\": {\n      \"email\": \"admin@biblioteca.com\",\n      \"password\": \"123456\"\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Iniciar sesión con email y contraseña. Retorna token JWT para autenticación."
+					}
+				},
+				{
+					"name": "Registrar Usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation RegistrarUsuario($registerRequest: RegisterRequest!) { registrar(registerRequest: $registerRequest) { token user { id email } } }\",\n  \"variables\": {\n    \"registerRequest\": {\n      \"email\": \"nuevo@biblioteca.com\",\n      \"password\": \"123456\"\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Registrar nuevo usuario en el sistema. Retorna token JWT automáticamente."
+					}
+				}
+			]
+		},
+		{
+			"name": "📖 Libros",
+			"item": [
+				{
+					"name": "📋 Obtener Todos los Libros",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ObtenerLibros { libros { id titulo autor categoria disponible createdAt updatedAt } }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener lista completa de todos los libros en la biblioteca"
+					}
+				},
+				{
+					"name": "🔍 Obtener Libro por ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ObtenerLibro($id: ID!) { libro(id: $id) { id titulo autor categoria disponible createdAt updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener un libro específico por su ID"
+					}
+				},
+				{
+					"name": "📚 Libros por Categoría",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query LibrosPorCategoria($categoria: String!) { librosPorCategoria(categoria: $categoria) { id titulo autor categoria disponible } }\",\n  \"variables\": {\n    \"categoria\": \"Ficción\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Filtrar libros por categoría específica"
+					}
+				},
+				{
+					"name": "✅ Libros Disponibles",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query LibrosDisponibles { librosDisponibles { id titulo autor categoria disponible } }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener solo libros marcados como disponibles"
+					}
+				},
+				{
+					"name": "➕ Crear Libro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation CrearLibro($input: LibroInput!) { crearLibro(input: $input) { id titulo autor categoria disponible createdAt } }\",\n  \"variables\": {\n    \"input\": {\n      \"titulo\": \"1984\",\n      \"autor\": \"George Orwell\",\n      \"categoria\": \"Ficción\",\n      \"disponible\": true\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Crear un nuevo libro en la biblioteca"
+					}
+				},
+				{
+					"name": "✏️ Actualizar Libro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation ActualizarLibro($id: ID!, $input: LibroInput!) { actualizarLibro(id: $id, input: $input) { id titulo autor categoria disponible updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"input\": {\n      \"titulo\": \"Animal Farm\",\n      \"autor\": \"George Orwell\",\n      \"categoria\": \"Ficción\",\n      \"disponible\": false\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Actualizar información de un libro existente"
+					}
+				},
+				{
+					"name": "🗑️ Eliminar Libro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation EliminarLibro($id: ID!) { eliminarLibro(id: $id) }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Eliminar un libro del sistema"
+					}
+				}
+			]
+		},
+		{
+			"name": "👥 Miembros",
+			"item": [
+				{
+					"name": "📋 Obtener Todos los Miembros",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ObtenerMiembros { miembros { id nombre apellido direccion telefono fechaRegistro createdAt updatedAt } }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener lista completa de miembros de la biblioteca"
+					}
+				},
+				{
+					"name": "🔍 Obtener Miembro por ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ObtenerMiembro($id: ID!) { miembro(id: $id) { id nombre apellido direccion telefono fechaRegistro createdAt updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener información detallada de un miembro específico"
+					}
+				},
+				{
+					"name": "➕ Crear Miembro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation CrearMiembro($input: MiembroInput!) { crearMiembro(input: $input) { id nombre apellido direccion telefono fechaRegistro createdAt } }\",\n  \"variables\": {\n    \"input\": {\n      \"nombre\": \"Juan\",\n      \"apellido\": \"Pérez\",\n      \"direccion\": \"Av. Libertad 123\",\n      \"telefono\": \"555-0123\"\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Registrar un nuevo miembro en la biblioteca"
+					}
+				},
+				{
+					"name": "✏️ Actualizar Miembro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation ActualizarMiembro($id: ID!, $input: MiembroInput!) { actualizarMiembro(id: $id, input: $input) { id nombre apellido direccion telefono updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"input\": {\n      \"nombre\": \"Juan Carlos\",\n      \"apellido\": \"Pérez González\",\n      \"direccion\": \"Av. Libertad 456\",\n      \"telefono\": \"555-0456\"\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Actualizar información de un miembro existente"
+					}
+				},
+				{
+					"name": "🗑️ Eliminar Miembro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation EliminarMiembro($id: ID!) { eliminarMiembro(id: $id) }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Eliminar un miembro del sistema"
+					}
+				}
+			]
+		},
+		{
+			"name": "📋 Préstamos",
+			"item": [
+				{
+					"name": "📋 Obtener Todos los Préstamos",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ObtenerPrestamos { prestamos { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa createdAt updatedAt } }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener lista completa de préstamos"
+					}
+				},
+				{
+					"name": "🔍 Obtener Préstamo por ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ObtenerPrestamo($id: ID!) { prestamo(id: $id) { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa createdAt updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener información detallada de un préstamo específico"
+					}
+				},
+				{
+					"name": "🟢 Préstamos Activos",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query PrestamosActivos { prestamosActivos { id fechaPrestamo fechaDevolucionEsperada estado multa } }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener préstamos que aún no han sido devueltos (estado=true)"
+					}
+				},
+				{
+					"name": "⚠️ Préstamos Vencidos",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query PrestamosVencidos { prestamosVencidos { id fechaPrestamo fechaDevolucionEsperada estado multa } }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener préstamos que han pasado su fecha de devolución esperada"
+					}
+				},
+				{
+					"name": "💰 Préstamos con Multa",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query PrestamosConMulta { prestamosConMulta { id fechaPrestamo fechaDevolucionEsperada multa estado } }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener préstamos que tienen multa aplicada"
+					}
+				},
+				{
+					"name": "➕ Crear Préstamo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation CrearPrestamo($input: PrestamoInput!) { crearPrestamo(input: $input) { id fechaPrestamo fechaDevolucionEsperada estado multa createdAt } }\",\n  \"variables\": {\n    \"input\": {\n      \"fechaPrestamo\": \"2025-11-08T10:00:00\",\n      \"fechaDevolucionEsperada\": \"2025-11-22T10:00:00\",\n      \"fechaDevolucionReal\": null,\n      \"estado\": true,\n      \"multa\": 0.0\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Registrar un nuevo préstamo de libro"
+					}
+				},
+				{
+					"name": "✏️ Actualizar Préstamo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation ActualizarPrestamo($id: ID!, $input: PrestamoInput!) { actualizarPrestamo(id: $id, input: $input) { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"input\": {\n      \"fechaPrestamo\": \"2025-11-08T10:00:00\",\n      \"fechaDevolucionEsperada\": \"2025-11-25T10:00:00\",\n      \"fechaDevolucionReal\": null,\n      \"estado\": true,\n      \"multa\": 5.0\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Actualizar información de un préstamo existente"
+					}
+				},
+				{
+					"name": "📚 Marcar como Devuelto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation MarcarComoDevuelto($id: ID!) { marcarComoDevuelto(id: $id) { id fechaDevolucionReal estado updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Marcar un préstamo como devuelto automáticamente"
+					}
+				},
+				{
+					"name": "💰 Aplicar Multa",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation AplicarMulta($id: ID!, $montoMulta: Float!) { aplicarMulta(id: $id, montoMulta: $montoMulta) { id multa updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"montoMulta\": 15.50\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Aplicar una multa específica a un préstamo"
+					}
+				},
+				{
+					"name": "🗑️ Eliminar Préstamo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation EliminarPrestamo($id: ID!) { eliminarPrestamo(id: $id) }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Eliminar un préstamo del sistema"
+					}
+				}
+			]
+		},
+		{
+			"name": "👤 Usuarios",
+			"item": [
+				{
+					"name": "📋 Obtener Todos los Usuarios",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ObtenerUsuarios { usuarios { id email password createdAt updatedAt } }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener lista completa de usuarios del sistema"
+					}
+				},
+				{
+					"name": "🔍 Obtener Usuario por ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ObtenerUsuario($id: ID!) { usuario(id: $id) { id email password createdAt updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener información detallada de un usuario específico"
+					}
+				},
+				{
+					"name": "🔍 Buscar Usuarios por Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query BuscarUsuariosPorEmail($emailParcial: String!) { usuariosPorEmail(emailParcial: $emailParcial) { id email createdAt } }\",\n  \"variables\": {\n    \"emailParcial\": \"biblioteca\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Buscar usuarios que contengan un texto específico en su email"
+					}
+				},
+				{
+					"name": "🆕 Usuarios Recientes",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query UsuariosRecientes { usuariosRecientes { id email createdAt } }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener usuarios ordenados por fecha de creación (más recientes primero)"
+					}
+				},
+				{
+					"name": "📊 Total de Usuarios",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query TotalUsuarios { totalUsuarios }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener contador total de usuarios en el sistema"
+					}
+				},
+				{
+					"name": "➕ Crear Usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation CrearUsuario($input: UsuarioInput!) { crearUsuario(input: $input) { id email createdAt } }\",\n  \"variables\": {\n    \"input\": {\n      \"email\": \"admin@biblioteca.com\",\n      \"password\": \"123456\"\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Crear un nuevo usuario en el sistema (CRUD - diferente del registro con auth)"
+					}
+				},
+				{
+					"name": "✏️ Actualizar Usuario Completo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation ActualizarUsuario($id: ID!, $input: UsuarioInput!) { actualizarUsuario(id: $id, input: $input) { id email updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"input\": {\n      \"email\": \"nuevoadmin@biblioteca.com\",\n      \"password\": \"newpassword123\"\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Actualizar información completa de un usuario existente"
+					}
+				},
+				{
+					"name": "📧 Actualizar Solo Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation ActualizarEmailUsuario($id: ID!, $nuevoEmail: String!) { actualizarEmailUsuario(id: $id, nuevoEmail: $nuevoEmail) { id email updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"nuevoEmail\": \"correonuevo@biblioteca.com\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Actualizar únicamente el email de un usuario"
+					}
+				},
+				{
+					"name": "🔒 Actualizar Solo Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation ActualizarPasswordUsuario($id: ID!, $nuevoPassword: String!) { actualizarPasswordUsuario(id: $id, nuevoPassword: $nuevoPassword) { id email updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"nuevoPassword\": \"newSecurePassword123\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Actualizar únicamente la contraseña de un usuario"
+					}
+				},
+				{
+					"name": "🗑️ Eliminar Usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation EliminarUsuario($id: ID!) { eliminarUsuario(id: $id) }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Eliminar un usuario del sistema"
+					}
+				}
+			]
+		},
+		{
+			"name": "🚪 Acceso Biblioteca",
+			"item": [
+				{
+					"name": "📋 Obtener Todos los Accesos",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ObtenerAccesos { accesos { id fechaEntrada fechaSalida metodoAcceso codigoQr estado miembroId miembroNombre miembroApellido createdAt updatedAt } }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener lista completa de registros de acceso a la biblioteca"
+					}
+				},
+				{
+					"name": "🔍 Obtener Acceso por ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ObtenerAcceso($id: ID!) { acceso(id: $id) { id fechaEntrada fechaSalida metodoAcceso codigoQr estado miembroId miembroNombre miembroApellido createdAt updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener información detallada de un acceso específico"
+					}
+				},
+				{
+					"name": "✅ Verificar si Miembro está Adentro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query MiembroEstaAdentro($miembroId: ID!) { miembroEstaAdentro(miembroId: $miembroId) }\",\n  \"variables\": {\n    \"miembroId\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Verificar si un miembro específico está actualmente dentro de la biblioteca"
+					}
+				},
+				{
+					"name": "🏢 Miembros Actualmente Adentro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query MiembrosAdentro { miembrosAdentro { id fechaEntrada miembroId miembroNombre miembroApellido metodoAcceso } }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener lista de miembros que están actualmente dentro de la biblioteca"
+					}
+				},
+				{
+					"name": "📊 Historial de Miembro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query HistorialMiembro($miembroId: ID!) { historialMiembro(miembroId: $miembroId) { id fechaEntrada fechaSalida metodoAcceso estado } }\",\n  \"variables\": {\n    \"miembroId\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener historial completo de accesos de un miembro específico"
+					}
+				},
+				{
+					"name": "📈 Reporte de Accesos por Fechas",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ReporteAccesos($fechaInicio: String!, $fechaFin: String!) { reporteAccesos(fechaInicio: $fechaInicio, fechaFin: $fechaFin) { id fechaEntrada fechaSalida miembroNombre miembroApellido metodoAcceso } }\",\n  \"variables\": {\n    \"fechaInicio\": \"2025-11-01T00:00:00\",\n    \"fechaFin\": \"2025-11-30T23:59:59\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Generar reporte de accesos en un rango de fechas específico"
+					}
+				},
+				{
+					"name": "➕ Crear Acceso",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation CrearAcceso($input: AccesoBibliotecaInput!) { crearAcceso(input: $input) { id fechaEntrada metodoAcceso codigoQr estado miembroId createdAt } }\",\n  \"variables\": {\n    \"input\": {\n      \"fechaEntrada\": \"2025-11-08T10:00:00\",\n      \"fechaSalida\": null,\n      \"metodoAcceso\": \"QR_MOVIL\",\n      \"codigoQr\": \"BIBLIO-ABC123\",\n      \"estado\": true,\n      \"miembroId\": \"1\"\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Registrar un nuevo acceso a la biblioteca (CRUD básico)"
+					}
+				},
+				{
+					"name": "✏️ Actualizar Acceso",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation ActualizarAcceso($id: ID!, $input: AccesoBibliotecaInput!) { actualizarAcceso(id: $id, input: $input) { id fechaEntrada fechaSalida metodoAcceso codigoQr estado updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"input\": {\n      \"fechaEntrada\": \"2025-11-08T10:00:00\",\n      \"fechaSalida\": \"2025-11-08T18:00:00\",\n      \"metodoAcceso\": \"QR_MOVIL\",\n      \"codigoQr\": \"BIBLIO-ABC123\",\n      \"estado\": false,\n      \"miembroId\": \"1\"\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Actualizar información de un acceso existente"
+					}
+				},
+				{
+					"name": "🗑️ Eliminar Acceso",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation EliminarAcceso($id: ID!) { eliminarAcceso(id: $id) }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Eliminar un registro de acceso del sistema"
+					}
+				},
+				{
+					"name": "🔳 Generar Código QR",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation GenerarCodigoQR { generarCodigoQR }\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Generar un código QR único para uso en ingreso/egreso móvil"
+					}
+				},
+				{
+					"name": "📲 Registrar Ingreso (Móvil)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation RegistrarIngreso($miembroId: ID!, $codigoQr: String!) { registrarIngreso(miembroId: $miembroId, codigoQr: $codigoQr) { accesoId miembroId miembroNombre miembroApellido fechaEntrada tipoAccion mensaje exitoso } }\",\n  \"variables\": {\n    \"miembroId\": \"1\",\n    \"codigoQr\": \"BIBLIO-ABC123\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Registrar ingreso de miembro escaneando código QR (desde app móvil)"
+					}
+				},
+				{
+					"name": "📱 Registrar Egreso (Móvil)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation RegistrarEgreso($miembroId: ID!, $codigoQr: String!) { registrarEgreso(miembroId: $miembroId, codigoQr: $codigoQr) { accesoId miembroId miembroNombre miembroApellido fechaEntrada fechaSalida tipoAccion mensaje exitoso } }\",\n  \"variables\": {\n    \"miembroId\": \"1\",\n    \"codigoQr\": \"BIBLIO-ABC123\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Registrar egreso de miembro escaneando código QR (desde app móvil)"
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-extract JWT token from login responses",
+					"if (pm.response.json() && pm.response.json().data && pm.response.json().data.login) {",
+					"    const token = pm.response.json().data.login.token;",
+					"    pm.environment.set('jwt_token', token);",
+					"    console.log('JWT Token saved:', token);",
+					"}",
+					"",
+					"if (pm.response.json() && pm.response.json().data && pm.response.json().data.registrar) {",
+					"    const token = pm.response.json().data.registrar.token;",
+					"    pm.environment.set('jwt_token', token);",
+					"    console.log('JWT Token saved from registration:', token);",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "graphql_endpoint",
+			"value": "{{base_url}}/graphql",
+			"type": "string"
+		}
+	]
+}
