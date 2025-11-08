@@ -30,10 +30,21 @@ type Miembro {
 type Prestamo {
     id: ID!
     fechaPrestamo: String!
-    fechaDevolucion: String
-    estado: String!
-    miembro: Miembro!
-    libros: [Libro!]
+    fechaDevolucionEsperada: String!
+    fechaDevolucionReal: String
+    estado: Boolean!
+    multa: Float
+    createdAt: String
+    updatedAt: String
+}
+
+# Tipo completo para Usuario (CRUD)
+type UsuarioCompleto {
+    id: ID!
+    email: String!
+    password: String!
+    createdAt: String
+    updatedAt: String
 }
 
 # Tipo para AccesoBiblioteca
@@ -92,8 +103,17 @@ input MiembroInput {
 }
 
 input PrestamoInput {
-    miembroId: ID!
-    libroIds: [ID!]!
+    fechaPrestamo: String!
+    fechaDevolucionEsperada: String!
+    fechaDevolucionReal: String
+    estado: Boolean!
+    multa: Float
+}
+
+# Input completo para Usuario (CRUD)
+input UsuarioInput {
+    email: String!
+    password: String!
 }
 
 # Input para AccesoBiblioteca
@@ -132,7 +152,16 @@ type Query {
     # Prestamos
     prestamos: [Prestamo!]!
     prestamo(id: ID!): Prestamo
-    prestamosPorMiembro(miembroId: ID!): [Prestamo!]!
+    prestamosActivos: [Prestamo!]!
+    prestamosVencidos: [Prestamo!]!
+    prestamosConMulta: [Prestamo!]!
+    
+    # Usuarios (CRUD completo)
+    usuarios: [UsuarioCompleto!]!
+    usuario(id: ID!): UsuarioCompleto
+    usuariosPorEmail(emailParcial: String!): [UsuarioCompleto!]!
+    usuariosRecientes: [UsuarioCompleto!]!
+    totalUsuarios: Int!
     
     # AccesoBiblioteca - Queries
     accesos: [AccesoBiblioteca!]!
@@ -161,7 +190,17 @@ type Mutation {
     
     # Prestamos
     crearPrestamo(input: PrestamoInput!): Prestamo!
-    devolverLibro(prestamoId: ID!): Prestamo!
+    actualizarPrestamo(id: ID!, input: PrestamoInput!): Prestamo!
+    eliminarPrestamo(id: ID!): Boolean!
+    marcarComoDevuelto(id: ID!): Prestamo!
+    aplicarMulta(id: ID!, montoMulta: Float!): Prestamo!
+    
+    # Usuarios (CRUD completo)
+    crearUsuario(input: UsuarioInput!): UsuarioCompleto!
+    actualizarUsuario(id: ID!, input: UsuarioInput!): UsuarioCompleto!
+    eliminarUsuario(id: ID!): Boolean!
+    actualizarEmailUsuario(id: ID!, nuevoEmail: String!): UsuarioCompleto!
+    actualizarPasswordUsuario(id: ID!, nuevoPassword: String!): UsuarioCompleto!
     
     # AccesoBiblioteca - Mutations CRUD
     crearAcceso(input: AccesoBibliotecaInput!): AccesoBiblioteca!
