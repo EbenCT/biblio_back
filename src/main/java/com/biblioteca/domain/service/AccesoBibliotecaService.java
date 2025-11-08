@@ -119,6 +119,9 @@ public class AccesoBibliotecaService {
     /**
      * Registrar INGRESO de un miembro escaneando QR
      * Llamado desde la app móvil cuando escanea QR
+     * 
+     * Permite múltiples accesos por día - el miembro puede entrar y salir varias veces,
+     * pero debe registrar salida antes de volver a entrar.
      */
     public AccesoBibliotecaResponseDTO registrarIngreso(Long miembroId, String codigoQr) {
         log.info("Registrando ingreso - MiembroId: {}, CodigoQR: {}", miembroId, codigoQr);
@@ -128,9 +131,10 @@ public class AccesoBibliotecaService {
             .orElseThrow(() -> EntityNotFoundException.notFound("Miembro", miembroId));
 
         // Verificar que no tenga un acceso activo (que no haya salido)
+        // Permite múltiples accesos al día, pero debe registrar salida antes de volver a entrar
         Optional<AccesoBiblioteca> accesoActivo = accesoBibliotecaRepository.findActivoByMiembro(miembroId);
         if (accesoActivo.isPresent()) {
-            throw new IllegalStateException("El miembro ya tiene un acceso activo. Debe registrar salida primero.");
+            throw new IllegalStateException("El miembro ya está dentro de la biblioteca. Debe registrar salida primero.");
         }
 
         // Crear nuevo registro de acceso

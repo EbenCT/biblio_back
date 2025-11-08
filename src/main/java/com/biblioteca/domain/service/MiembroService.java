@@ -1,7 +1,9 @@
 package com.biblioteca.domain.service;
 
 import com.biblioteca.domain.model.Miembro;
+import com.biblioteca.domain.model.Usuario;
 import com.biblioteca.domain.repository.MiembroRepository;
+import com.biblioteca.domain.repository.UsuarioRepository;
 import com.biblioteca.web.dto.MiembroRequestDTO;
 import com.biblioteca.web.dto.MiembroResponseDTO;
 import com.biblioteca.exception.EntityNotFoundException;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 public class MiembroService {
 
     private final MiembroRepository miembroRepository;
+    private final UsuarioRepository usuarioRepository;
 
     /**
      * Crear nueva entidad Miembro
@@ -35,6 +38,20 @@ public class MiembroService {
 
         Miembro entity = new Miembro();
         mapRequestToEntity(requestDTO, entity);
+
+        // Si se proporcionan email y password, crear usuario automáticamente
+        if (requestDTO.getEmail() != null && requestDTO.getPassword() != null) {
+            log.info("Creando usuario automáticamente para miembro: {}", requestDTO.getEmail());
+            
+            Usuario usuario = new Usuario();
+            usuario.setEmail(requestDTO.getEmail().trim());
+            usuario.setPassword(requestDTO.getPassword()); // En producción, encriptar la contraseña
+            
+            Usuario savedUsuario = usuarioRepository.save(usuario);
+            entity.setUsuario(savedUsuario);
+            
+            log.info("Usuario creado automáticamente con ID: {}", savedUsuario.getId());
+        }
 
         Miembro savedEntity = miembroRepository.save(entity);
 

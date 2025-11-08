@@ -39,5 +39,9 @@ public class MiembroRequestDTO {
     // fechaRegistro es opcional - si no se proporciona, se asigna automáticamente
     private LocalDateTime fechaRegistro;
 
+    // Campos para la creación automática de usuario (solo para GraphQL)
+    private String email;
+    private String password;
+
     // TODO: Agregar validaciones específicas según reglas de negocio
 }
