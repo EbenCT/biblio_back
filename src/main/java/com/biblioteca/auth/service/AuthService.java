@@ -3,6 +3,7 @@ package com.biblioteca.auth.service;
 import com.biblioteca.auth.dto.AuthResponseDTO;
 import com.biblioteca.auth.dto.LoginRequestDTO;
 import com.biblioteca.auth.dto.RegisterRequestDTO;
+import com.biblioteca.auth.dto.UsuarioDTO;
 import com.biblioteca.config.JwtUtil;
 import com.biblioteca.domain.model.Usuario;
 import com.biblioteca.domain.repository.UsuarioRepository;
@@ -51,10 +52,17 @@ public class AuthService {
 
         log.info("Login exitoso para: {}", request.getEmail());
 
+        // Crear UsuarioDTO para GraphQL
+        UsuarioDTO usuarioDTO = UsuarioDTO.builder()
+            .id(user.getId().toString())
+            .email(user.getEmail())
+            .build();
+
         return AuthResponseDTO.builder()
             .token(token)
             .email(user.getEmail())
             .message("Login exitoso")
+            .user(usuarioDTO)
             .build();
     }
 
@@ -82,10 +90,17 @@ public class AuthService {
 
         log.info("Usuario registrado exitosamente: {}", request.getEmail());
 
+        // Crear UsuarioDTO para GraphQL
+        UsuarioDTO usuarioDTO = UsuarioDTO.builder()
+            .id(savedUser.getId().toString())
+            .email(savedUser.getEmail())
+            .build();
+
         return AuthResponseDTO.builder()
             .token(token)
             .email(savedUser.getEmail())
             .message("Usuario registrado exitosamente")
+            .user(usuarioDTO)
             .build();
     }
 }

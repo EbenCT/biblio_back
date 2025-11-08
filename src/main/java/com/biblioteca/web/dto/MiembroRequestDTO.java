@@ -36,7 +36,7 @@ public class MiembroRequestDTO {
     @Size(max = 255)
     private String telefono;
 
-        @NotNull
+    // fechaRegistro es opcional - si no se proporciona, se asigna automáticamente
     private LocalDateTime fechaRegistro;
 
     // TODO: Agregar validaciones específicas según reglas de negocio

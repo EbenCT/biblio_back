@@ -32,8 +32,7 @@ public class AccesoBiblioteca {
     @Column(name = "fecha_entrada", nullable = false)
     private LocalDateTime fechaEntrada;
 
-        @NotNull
-    @Column(name = "fecha_salida", nullable = false)
+    @Column(name = "fecha_salida", nullable = true)
     private LocalDateTime fechaSalida;
 
         @NotNull

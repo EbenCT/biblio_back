@@ -19,4 +19,7 @@ public class AuthResponseDTO {
     private String email;
     private String message;
     private String type = "Bearer";
+    
+    // Campo para GraphQL - usuario completo
+    private UsuarioDTO user;
 }

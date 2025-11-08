@@ -33,6 +33,11 @@ public class AccesoBibliotecaResponseDTO {
     
     private Boolean estado;
 
+    // Información del miembro para las respuestas
+    private Long miembroId;
+    private String miembroNombre;
+    private String miembroApellido;
+
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
 

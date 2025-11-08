@@ -102,9 +102,8 @@ public class MiembroService {
     // ==================== MÉTODOS DE MAPEO ====================
 
     private void mapRequestToEntity(MiembroRequestDTO requestDTO, Miembro entity) {
-        // TODO: Implementar mapeo específico de campos
-        // Ejemplo básico:
-                if (requestDTO.getNombre() != null) {
+        // Mapeo de campos requeridos
+        if (requestDTO.getNombre() != null) {
             entity.setNombre(requestDTO.getNombre().trim());
         }
         if (requestDTO.getApellido() != null) {
@@ -116,8 +115,12 @@ public class MiembroService {
         if (requestDTO.getTelefono() != null) {
             entity.setTelefono(requestDTO.getTelefono().trim());
         }
+        
+        // Asignar fechaRegistro - si no viene en el request, usar fecha actual
         if (requestDTO.getFechaRegistro() != null) {
             entity.setFechaRegistro(requestDTO.getFechaRegistro());
+        } else {
+            entity.setFechaRegistro(LocalDateTime.now());
         }
     }
 

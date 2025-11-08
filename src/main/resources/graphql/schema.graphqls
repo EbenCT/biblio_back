@@ -10,28 +10,69 @@ type Libro {
     autor: String!
     categoria: String!
     disponible: Boolean!
-    createdAt: DateTime
-    updatedAt: DateTime
+    createdAt: String
+    updatedAt: String
     prestamo: Prestamo
 }
 
 type Miembro {
     id: ID!
     nombre: String!
-    email: String!
-    telefono: String!
+    apellido: String!
     direccion: String!
-    fechaRegistro: DateTime
+    telefono: String!
+    fechaRegistro: String
+    createdAt: String
+    updatedAt: String
     prestamos: [Prestamo!]
 }
 
 type Prestamo {
     id: ID!
-    fechaPrestamo: DateTime!
-    fechaDevolucion: DateTime
+    fechaPrestamo: String!
+    fechaDevolucion: String
     estado: String!
     miembro: Miembro!
     libros: [Libro!]
+}
+
+# Tipo para AccesoBiblioteca
+type AccesoBiblioteca {
+    id: ID!
+    fechaEntrada: String!
+    fechaSalida: String
+    metodoAcceso: String!
+    codigoQr: String!
+    estado: Boolean!
+    miembroId: ID
+    miembroNombre: String
+    miembroApellido: String
+    createdAt: String
+    updatedAt: String
+}
+
+# Tipo para respuestas de ingreso/egreso móvil
+type IngresoEgresoResponse {
+    accesoId: ID
+    miembroId: ID
+    miembroNombre: String
+    miembroApellido: String
+    fechaEntrada: String
+    fechaSalida: String
+    tipoAccion: String!
+    mensaje: String!
+    exitoso: Boolean!
+}
+
+# Tipos para autenticación
+type Usuario {
+    id: ID!
+    email: String!
+}
+
+type AuthResponse {
+    token: String!
+    user: Usuario!
 }
 
 # Tipos de entrada para mutations
@@ -44,14 +85,36 @@ input LibroInput {
 
 input MiembroInput {
     nombre: String!
-    email: String!
-    telefono: String!
+    apellido: String!
     direccion: String!
+    telefono: String!
+    fechaRegistro: String
 }
 
 input PrestamoInput {
     miembroId: ID!
     libroIds: [ID!]!
+}
+
+# Input para AccesoBiblioteca
+input AccesoBibliotecaInput {
+    fechaEntrada: String!
+    fechaSalida: String
+    metodoAcceso: String!
+    codigoQr: String!
+    estado: Boolean!
+    miembroId: ID!
+}
+
+# Inputs para autenticación
+input LoginRequest {
+    email: String!
+    password: String!
+}
+
+input RegisterRequest {
+    email: String!
+    password: String!
 }
 
 # Queries (consultas)
@@ -70,10 +133,22 @@ type Query {
     prestamos: [Prestamo!]!
     prestamo(id: ID!): Prestamo
     prestamosPorMiembro(miembroId: ID!): [Prestamo!]!
+    
+    # AccesoBiblioteca - Queries
+    accesos: [AccesoBiblioteca!]!
+    acceso(id: ID!): AccesoBiblioteca
+    miembroEstaAdentro(miembroId: ID!): Boolean!
+    miembrosAdentro: [AccesoBiblioteca!]!
+    historialMiembro(miembroId: ID!): [AccesoBiblioteca!]!
+    reporteAccesos(fechaInicio: String!, fechaFin: String!): [AccesoBiblioteca!]!
 }
 
 # Mutations (modificaciones)
 type Mutation {
+    # Autenticación
+    registrar(registerRequest: RegisterRequest!): AuthResponse!
+    login(loginRequest: LoginRequest!): AuthResponse!
+    
     # Libros
     crearLibro(input: LibroInput!): Libro!
     actualizarLibro(id: ID!, input: LibroInput!): Libro!
@@ -87,4 +162,14 @@ type Mutation {
     # Prestamos
     crearPrestamo(input: PrestamoInput!): Prestamo!
     devolverLibro(prestamoId: ID!): Prestamo!
+    
+    # AccesoBiblioteca - Mutations CRUD
+    crearAcceso(input: AccesoBibliotecaInput!): AccesoBiblioteca!
+    actualizarAcceso(id: ID!, input: AccesoBibliotecaInput!): AccesoBiblioteca!
+    eliminarAcceso(id: ID!): Boolean!
+    
+    # AccesoBiblioteca - Mutations específicas para móvil
+    generarCodigoQR: String!
+    registrarIngreso(miembroId: ID!, codigoQr: String!): IngresoEgresoResponse!
+    registrarEgreso(miembroId: ID!, codigoQr: String!): IngresoEgresoResponse!
 }

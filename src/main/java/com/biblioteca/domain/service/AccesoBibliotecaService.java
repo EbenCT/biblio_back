@@ -1,7 +1,9 @@
 package com.biblioteca.domain.service;
 
 import com.biblioteca.domain.model.AccesoBiblioteca;
+import com.biblioteca.domain.model.Miembro;
 import com.biblioteca.domain.repository.AccesoBibliotecaRepository;
+import com.biblioteca.domain.repository.MiembroRepository;
 import com.biblioteca.web.dto.AccesoBibliotecaRequestDTO;
 import com.biblioteca.web.dto.AccesoBibliotecaResponseDTO;
 import com.biblioteca.exception.EntityNotFoundException;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -26,6 +30,7 @@ import java.util.stream.Collectors;
 public class AccesoBibliotecaService {
 
     private final AccesoBibliotecaRepository accesoBibliotecaRepository;
+    private final MiembroRepository miembroRepository;
 
     /**
      * Crear nueva entidad AccesoBiblioteca
@@ -99,6 +104,120 @@ public class AccesoBibliotecaService {
         log.info("Entidad AccesoBiblioteca eliminada: {}", id);
     }
 
+    // ==================== MÉTODOS ESPECÍFICOS PARA INGRESO/EGRESO ====================
+
+    /**
+     * Generar código QR único para ingreso/egreso
+     * Este código será usado por la web para generar el QR visual
+     */
+    public String generarCodigoQR() {
+        String codigo = "BIBLIO-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        log.info("Código QR generado: {}", codigo);
+        return codigo;
+    }
+
+    /**
+     * Registrar INGRESO de un miembro escaneando QR
+     * Llamado desde la app móvil cuando escanea QR
+     */
+    public AccesoBibliotecaResponseDTO registrarIngreso(Long miembroId, String codigoQr) {
+        log.info("Registrando ingreso - MiembroId: {}, CodigoQR: {}", miembroId, codigoQr);
+
+        // Verificar que el miembro existe
+        Miembro miembro = miembroRepository.findById(miembroId)
+            .orElseThrow(() -> EntityNotFoundException.notFound("Miembro", miembroId));
+
+        // Verificar que no tenga un acceso activo (que no haya salido)
+        Optional<AccesoBiblioteca> accesoActivo = accesoBibliotecaRepository.findActivoByMiembro(miembroId);
+        if (accesoActivo.isPresent()) {
+            throw new IllegalStateException("El miembro ya tiene un acceso activo. Debe registrar salida primero.");
+        }
+
+        // Crear nuevo registro de acceso
+        AccesoBiblioteca nuevoAcceso = new AccesoBiblioteca();
+        nuevoAcceso.setMiembro(miembro);
+        nuevoAcceso.setFechaEntrada(LocalDateTime.now());
+        nuevoAcceso.setFechaSalida(null); // No ha salido aún
+        nuevoAcceso.setCodigoQr(codigoQr);
+        nuevoAcceso.setMetodoAcceso("QR_MOVIL");
+        nuevoAcceso.setEstado(true); // Activo = está dentro
+
+        AccesoBiblioteca savedAcceso = accesoBibliotecaRepository.save(nuevoAcceso);
+        
+        log.info("Ingreso registrado exitosamente - ID: {}", savedAcceso.getId());
+        return mapEntityToResponse(savedAcceso);
+    }
+
+    /**
+     * Registrar EGRESO de un miembro escaneando QR  
+     * Llamado desde la app móvil cuando escanea QR para salir
+     */
+    public AccesoBibliotecaResponseDTO registrarEgreso(Long miembroId, String codigoQr) {
+        log.info("Registrando egreso - MiembroId: {}, CodigoQR: {}", miembroId, codigoQr);
+
+        // Buscar el acceso activo del miembro
+        AccesoBiblioteca accesoActivo = accesoBibliotecaRepository.findActivoByMiembro(miembroId)
+            .orElseThrow(() -> new IllegalStateException("No se encontró un acceso activo para este miembro"));
+
+        // Actualizar con fecha de salida
+        accesoActivo.setFechaSalida(LocalDateTime.now());
+        accesoActivo.setEstado(false); // Ya no está dentro
+        
+        AccesoBiblioteca updatedAcceso = accesoBibliotecaRepository.save(accesoActivo);
+        
+        log.info("Egreso registrado exitosamente - ID: {}", updatedAcceso.getId());
+        return mapEntityToResponse(updatedAcceso);
+    }
+
+    /**
+     * Verificar si un miembro está actualmente dentro de la biblioteca
+     */
+    @Transactional(readOnly = true)
+    public boolean estaAdentro(Long miembroId) {
+        return accesoBibliotecaRepository.findActivoByMiembro(miembroId).isPresent();
+    }
+
+    /**
+     * Obtener todos los miembros que están actualmente dentro de la biblioteca
+     */
+    @Transactional(readOnly = true)
+    public List<AccesoBibliotecaResponseDTO> obtenerMiembrosAdentro() {
+        log.debug("Obteniendo miembros actualmente dentro de la biblioteca");
+        
+        return accesoBibliotecaRepository.findMiembrosActivos()
+            .stream()
+            .map(this::mapEntityToResponse)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtener historial de accesos de un miembro específico
+     * Para la funcionalidad futura de la app móvil
+     */
+    @Transactional(readOnly = true)
+    public List<AccesoBibliotecaResponseDTO> obtenerHistorialMiembro(Long miembroId) {
+        log.debug("Obteniendo historial de accesos para miembro ID: {}", miembroId);
+        
+        return accesoBibliotecaRepository.findByMiembroIdOrderByFechaEntradaDesc(miembroId)
+            .stream()
+            .map(this::mapEntityToResponse)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtener reporte de accesos por rango de fechas
+     * Para el panel administrativo web
+     */
+    @Transactional(readOnly = true)
+    public List<AccesoBibliotecaResponseDTO> obtenerReportePorFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        log.debug("Obteniendo reporte de accesos desde {} hasta {}", fechaInicio, fechaFin);
+        
+        return accesoBibliotecaRepository.findByFechaEntradaBetweenOrderByFechaEntradaDesc(fechaInicio, fechaFin)
+            .stream()
+            .map(this::mapEntityToResponse)
+            .collect(Collectors.toList());
+    }
+
     // ==================== MÉTODOS DE MAPEO ====================
 
     private void mapRequestToEntity(AccesoBibliotecaRequestDTO requestDTO, AccesoBiblioteca entity) {
@@ -127,13 +246,19 @@ public class AccesoBibliotecaService {
         responseDTO.setCreatedAt(entity.getCreatedAt());
         responseDTO.setUpdatedAt(entity.getUpdatedAt());
 
-        // TODO: Implementar mapeo específico de campos
-        // Ejemplo básico:
-                responseDTO.setFechaEntrada(entity.getFechaEntrada());
+        // Mapeo de campos específicos
+        responseDTO.setFechaEntrada(entity.getFechaEntrada());
         responseDTO.setFechaSalida(entity.getFechaSalida());
         responseDTO.setMetodoAcceso(entity.getMetodoAcceso());
         responseDTO.setCodigoQr(entity.getCodigoQr());
         responseDTO.setEstado(entity.getEstado());
+
+        // Mapeo de información del miembro si existe
+        if (entity.getMiembro() != null) {
+            responseDTO.setMiembroId(entity.getMiembro().getId());
+            responseDTO.setMiembroNombre(entity.getMiembro().getNombre());
+            responseDTO.setMiembroApellido(entity.getMiembro().getApellido());
+        }
 
         return responseDTO;
     }
