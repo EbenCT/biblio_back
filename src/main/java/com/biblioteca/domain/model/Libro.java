@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 
 /**
  * Entidad JPA para Libro
@@ -51,9 +49,8 @@ public class Libro {
     private Boolean disponible;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "prestamo_id")
-    private Prestamo prestamo;
+    @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Prestamo> prestamos;
 
     // Campos de auditoría
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -47,11 +47,11 @@ public class Prestamo {
     private Double multa;
 
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "libro_id")
     private Libro libro;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "miembro_id")
     private Miembro miembro;
 

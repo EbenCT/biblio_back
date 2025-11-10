@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Entidad JPA para Miembro
@@ -57,6 +58,9 @@ public class Miembro {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
+
+    @OneToMany(mappedBy = "miembro", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Prestamo> prestamos;
 
     // Campos de auditoría
     @Column(name = "created_at", nullable = false, updatable = false)
