@@ -34,6 +34,8 @@ type Prestamo {
     fechaDevolucionReal: String
     estado: Boolean!
     multa: Float
+    libroId: ID
+    miembroId: ID
     createdAt: String
     updatedAt: String
 }
@@ -110,6 +112,8 @@ input PrestamoInput {
     fechaDevolucionReal: String
     estado: Boolean!
     multa: Float
+    libroId: ID!
+    miembroId: ID!
 }
 
 # Input completo para Usuario (CRUD)

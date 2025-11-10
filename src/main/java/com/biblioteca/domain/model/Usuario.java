@@ -6,9 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 
 /**
  * Entidad JPA para Usuario
@@ -41,8 +38,7 @@ public class Usuario {
     private String password;
 
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "miembro_id")
+    @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
     private Miembro miembro;
 
     // Campos de auditoría

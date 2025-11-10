@@ -33,6 +33,10 @@ public class PrestamoResponseDTO {
     
     private Double multa;
 
+    private Long libroId;
+
+    private Long miembroId;
+
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
 

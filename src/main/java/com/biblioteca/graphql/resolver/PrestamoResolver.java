@@ -97,7 +97,9 @@ public class PrestamoResolver {
                 input.getFechaDevolucionEsperada(),
                 input.getFechaDevolucionReal(),
                 input.getEstado(),
-                input.getMulta()
+                input.getMulta(),
+                input.getLibroId(),
+                input.getMiembroId()
         );
         
         return prestamoService.create(requestDTO);
@@ -116,7 +118,9 @@ public class PrestamoResolver {
                 input.getFechaDevolucionEsperada(),
                 input.getFechaDevolucionReal(),
                 input.getEstado(),
-                input.getMulta()
+                input.getMulta(),
+                input.getLibroId(),
+                input.getMiembroId()
         );
         
         return prestamoService.update(idLong, requestDTO);
@@ -157,6 +161,9 @@ public class PrestamoResolver {
                     false, // estado = false (devuelto)
                     prestamo.getMulta()
             );
+            // Mantener las relaciones existentes
+            updateDTO.setLibroId(prestamo.getLibroId());
+            updateDTO.setMiembroId(prestamo.getMiembroId());
             
             return prestamoService.update(idLong, updateDTO);
         } catch (Exception e) {
@@ -184,6 +191,9 @@ public class PrestamoResolver {
                     prestamo.getEstado(),
                     montoMulta // Nueva multa
             );
+            // Mantener las relaciones existentes
+            updateDTO.setLibroId(prestamo.getLibroId());
+            updateDTO.setMiembroId(prestamo.getMiembroId());
             
             return prestamoService.update(idLong, updateDTO);
         } catch (Exception e) {
@@ -199,6 +209,8 @@ public class PrestamoResolver {
         private LocalDateTime fechaDevolucionReal;
         private Boolean estado;
         private Double multa;
+        private Long libroId;
+        private Long miembroId;
 
         // Getters y setters
         public LocalDateTime getFechaPrestamo() { return fechaPrestamo; }
@@ -219,12 +231,18 @@ public class PrestamoResolver {
         
         public Double getMulta() { return multa; }
         public void setMulta(Double multa) { this.multa = multa; }
+        
+        public Long getLibroId() { return libroId; }
+        public void setLibroId(Long libroId) { this.libroId = libroId; }
+        
+        public Long getMiembroId() { return miembroId; }
+        public void setMiembroId(Long miembroId) { this.miembroId = miembroId; }
 
         @Override
         public String toString() {
             return String.format("PrestamoInput{fechaPrestamo='%s', fechaDevolucionEsperada='%s', " +
-                    "fechaDevolucionReal='%s', estado=%s, multa=%s}", 
-                    fechaPrestamo, fechaDevolucionEsperada, fechaDevolucionReal, estado, multa);
+                    "fechaDevolucionReal='%s', estado=%s, multa=%s, libroId=%s, miembroId=%s}", 
+                    fechaPrestamo, fechaDevolucionEsperada, fechaDevolucionReal, estado, multa, libroId, miembroId);
         }
     }
 }

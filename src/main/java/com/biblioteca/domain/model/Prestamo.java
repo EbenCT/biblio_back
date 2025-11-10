@@ -36,16 +36,14 @@ public class Prestamo {
     @Column(name = "fecha_devolucion_esperada", nullable = false)
     private LocalDateTime fechaDevolucionEsperada;
 
-        @NotNull
-    @Column(name = "fecha_devolucion_real", nullable = false)
+    @Column(name = "fecha_devolucion_real", nullable = true) // Opcional - solo cuando se devuelve
     private LocalDateTime fechaDevolucionReal;
 
         @NotNull
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
-        @NotNull
-    @Column(name = "multa", nullable = false)
+    @Column(name = "multa", nullable = true) // Opcional - puede ser null inicialmente
     private Double multa;
 
 

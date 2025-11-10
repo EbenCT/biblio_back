@@ -18,6 +18,7 @@ public class AuthResponseDTO {
     private String token;
     private String email;
     private String message;
+    @Builder.Default
     private String type = "Bearer";
     
     // Campo para GraphQL - usuario completo

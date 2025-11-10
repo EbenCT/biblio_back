@@ -1,7 +1,11 @@
 package com.biblioteca.domain.service;
 
 import com.biblioteca.domain.model.Prestamo;
+import com.biblioteca.domain.model.Libro;
+import com.biblioteca.domain.model.Miembro;
 import com.biblioteca.domain.repository.PrestamoRepository;
+import com.biblioteca.domain.repository.LibroRepository;
+import com.biblioteca.domain.repository.MiembroRepository;
 import com.biblioteca.web.dto.PrestamoRequestDTO;
 import com.biblioteca.web.dto.PrestamoResponseDTO;
 import com.biblioteca.exception.EntityNotFoundException;
@@ -26,6 +30,8 @@ import java.util.stream.Collectors;
 public class PrestamoService {
 
     private final PrestamoRepository prestamoRepository;
+    private final LibroRepository libroRepository;
+    private final MiembroRepository miembroRepository;
 
     /**
      * Crear nueva entidad Prestamo
@@ -119,6 +125,19 @@ public class PrestamoService {
         if (requestDTO.getMulta() != null) {
             entity.setMulta(requestDTO.getMulta());
         }
+        
+        // Mapear relaciones
+        if (requestDTO.getLibroId() != null) {
+            Libro libro = libroRepository.findById(requestDTO.getLibroId())
+                .orElseThrow(() -> EntityNotFoundException.notFound("Libro", requestDTO.getLibroId()));
+            entity.setLibro(libro);
+        }
+        
+        if (requestDTO.getMiembroId() != null) {
+            Miembro miembro = miembroRepository.findById(requestDTO.getMiembroId())
+                .orElseThrow(() -> EntityNotFoundException.notFound("Miembro", requestDTO.getMiembroId()));
+            entity.setMiembro(miembro);
+        }
     }
 
     private PrestamoResponseDTO mapEntityToResponse(Prestamo entity) {
@@ -134,6 +153,14 @@ public class PrestamoService {
         responseDTO.setFechaDevolucionReal(entity.getFechaDevolucionReal());
         responseDTO.setEstado(entity.getEstado());
         responseDTO.setMulta(entity.getMulta());
+        
+        // Mapear IDs de las entidades relacionadas
+        if (entity.getLibro() != null) {
+            responseDTO.setLibroId(entity.getLibro().getId());
+        }
+        if (entity.getMiembro() != null) {
+            responseDTO.setMiembroId(entity.getMiembro().getId());
+        }
 
         return responseDTO;
     }

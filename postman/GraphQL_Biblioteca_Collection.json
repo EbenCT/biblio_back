@@ -372,7 +372,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"query\": \"query ObtenerPrestamos { prestamos { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa createdAt updatedAt } }\"\n}"
+							"raw": "{\n  \"query\": \"query ObtenerPrestamos { prestamos { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa libroId miembroId createdAt updatedAt } }\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/graphql",
@@ -381,7 +381,7 @@
 							"port": "8080",
 							"path": ["graphql"]
 						},
-						"description": "Obtener lista completa de préstamos"
+						"description": "Obtener lista completa de préstamos con información de libro y miembro asociados"
 					}
 				},
 				{
@@ -396,7 +396,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"query\": \"query ObtenerPrestamo($id: ID!) { prestamo(id: $id) { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa createdAt updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+							"raw": "{\n  \"query\": \"query ObtenerPrestamo($id: ID!) { prestamo(id: $id) { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa libroId miembroId createdAt updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/graphql",
@@ -405,7 +405,7 @@
 							"port": "8080",
 							"path": ["graphql"]
 						},
-						"description": "Obtener información detallada de un préstamo específico"
+						"description": "Obtener información detallada de un préstamo específico incluyendo IDs de libro y miembro"
 					}
 				},
 				{
@@ -492,7 +492,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"query\": \"mutation CrearPrestamo($input: PrestamoInput!) { crearPrestamo(input: $input) { id fechaPrestamo fechaDevolucionEsperada estado multa createdAt } }\",\n  \"variables\": {\n    \"input\": {\n      \"fechaPrestamo\": \"2025-11-08T10:00:00\",\n      \"fechaDevolucionEsperada\": \"2025-11-22T10:00:00\",\n      \"fechaDevolucionReal\": null,\n      \"estado\": true,\n      \"multa\": 0.0\n    }\n  }\n}"
+							"raw": "{\n  \"query\": \"mutation CrearPrestamo($input: PrestamoInput!) { crearPrestamo(input: $input) { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa libroId miembroId createdAt updatedAt } }\",\n  \"variables\": {\n    \"input\": {\n      \"fechaPrestamo\": \"2025-11-10T15:00:00\",\n      \"fechaDevolucionEsperada\": \"2025-11-24T15:00:00\",\n      \"fechaDevolucionReal\": null,\n      \"estado\": true,\n      \"multa\": null,\n      \"libroId\": 1,\n      \"miembroId\": 1\n    }\n  }\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/graphql",
@@ -501,7 +501,7 @@
 							"port": "8080",
 							"path": ["graphql"]
 						},
-						"description": "Registrar un nuevo préstamo de libro"
+						"description": "Registrar un nuevo préstamo de libro. REQUIERE: libroId (ID del libro a prestar) y miembroId (ID del miembro que solicita el préstamo)"
 					}
 				},
 				{
@@ -516,7 +516,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"query\": \"mutation ActualizarPrestamo($id: ID!, $input: PrestamoInput!) { actualizarPrestamo(id: $id, input: $input) { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"input\": {\n      \"fechaPrestamo\": \"2025-11-08T10:00:00\",\n      \"fechaDevolucionEsperada\": \"2025-11-25T10:00:00\",\n      \"fechaDevolucionReal\": null,\n      \"estado\": true,\n      \"multa\": 5.0\n    }\n  }\n}"
+							"raw": "{\n  \"query\": \"mutation ActualizarPrestamo($id: ID!, $input: PrestamoInput!) { actualizarPrestamo(id: $id, input: $input) { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa libroId miembroId updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"input\": {\n      \"fechaPrestamo\": \"2025-11-10T10:00:00\",\n      \"fechaDevolucionEsperada\": \"2025-11-25T10:00:00\",\n      \"fechaDevolucionReal\": \"2025-11-20T15:30:00\",\n      \"estado\": false,\n      \"multa\": 5.0,\n      \"libroId\": 1,\n      \"miembroId\": 1\n    }\n  }\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/graphql",
@@ -525,7 +525,7 @@
 							"port": "8080",
 							"path": ["graphql"]
 						},
-						"description": "Actualizar información de un préstamo existente"
+						"description": "Actualizar información de un préstamo existente. INCLUYE: libroId y miembroId para cambiar las relaciones del préstamo si es necesario"
 					}
 				},
 				{
@@ -598,6 +598,54 @@
 							"path": ["graphql"]
 						},
 						"description": "Eliminar un préstamo del sistema"
+					}
+				},
+				{
+					"name": "📚 Ejemplo Completo - Crear Préstamo con Validaciones",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation CrearPrestamoCompleto($input: PrestamoInput!) { crearPrestamo(input: $input) { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa libroId miembroId createdAt updatedAt } }\",\n  \"variables\": {\n    \"input\": {\n      \"fechaPrestamo\": \"2025-11-10T09:00:00\",\n      \"fechaDevolucionEsperada\": \"2025-12-10T18:00:00\",\n      \"fechaDevolucionReal\": null,\n      \"estado\": true,\n      \"multa\": 0.0,\n      \"libroId\": 1,\n      \"miembroId\": 1\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Ejemplo completo para crear préstamo. NOTA: Asegúrate de que el libroId y miembroId existan en la base de datos antes de ejecutar."
+					}
+				},
+				{
+					"name": "🔄 Renovar Préstamo (Extender Fecha)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation RenovarPrestamo($id: ID!, $input: PrestamoInput!) { actualizarPrestamo(id: $id, input: $input) { id fechaPrestamo fechaDevolucionEsperada fechaDevolucionReal estado multa libroId miembroId updatedAt } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"input\": {\n      \"fechaPrestamo\": \"2025-11-10T09:00:00\",\n      \"fechaDevolucionEsperada\": \"2025-12-25T18:00:00\",\n      \"fechaDevolucionReal\": null,\n      \"estado\": true,\n      \"multa\": 0.0,\n      \"libroId\": 1,\n      \"miembroId\": 1\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Renovar un préstamo extendiendo la fecha de devolución esperada. Útil para prolongar préstamos activos."
 					}
 				}
 			]

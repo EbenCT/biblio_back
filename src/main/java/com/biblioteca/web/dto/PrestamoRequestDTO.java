@@ -22,14 +22,28 @@ public class PrestamoRequestDTO {
         @NotNull
     private LocalDateTime fechaDevolucionEsperada;
 
-        @NotNull
-    private LocalDateTime fechaDevolucionReal;
+    private LocalDateTime fechaDevolucionReal; // Opcional - solo cuando se devuelve
 
         @NotNull
     private Boolean estado;
 
+    private Double multa; // Opcional - puede ser 0 o null inicialmente
+
         @NotNull
-    private Double multa;
+    private Long libroId;
+
+        @NotNull
+    private Long miembroId;
+
+    // Constructor para crear préstamos sin IDs (para actualizaciones que mantienen las relaciones)
+    public PrestamoRequestDTO(LocalDateTime fechaPrestamo, LocalDateTime fechaDevolucionEsperada, 
+                             LocalDateTime fechaDevolucionReal, Boolean estado, Double multa) {
+        this.fechaPrestamo = fechaPrestamo;
+        this.fechaDevolucionEsperada = fechaDevolucionEsperada;
+        this.fechaDevolucionReal = fechaDevolucionReal;
+        this.estado = estado;
+        this.multa = multa;
+    }
 
     // TODO: Agregar validaciones específicas según reglas de negocio
 }
