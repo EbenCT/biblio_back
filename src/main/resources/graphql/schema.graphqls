@@ -190,7 +190,8 @@ type Mutation {
     eliminarLibro(id: ID!): Boolean!
     
     # Miembros
-    crearMiembro(input: MiembroInput!): Miembro!
+    crearMiembro(input: MiembroInput!): AuthResponse!
+    crearMiembroSinAuth(input: MiembroInput!): Miembro!
     actualizarMiembro(id: ID!, input: MiembroInput!): Miembro!
     eliminarMiembro(id: ID!): Boolean!
     

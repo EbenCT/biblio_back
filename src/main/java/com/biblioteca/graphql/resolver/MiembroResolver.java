@@ -1,5 +1,6 @@
 package com.biblioteca.graphql.resolver;
 
+import com.biblioteca.auth.dto.AuthResponseDTO;
 import com.biblioteca.domain.service.MiembroService;
 import com.biblioteca.web.dto.MiembroRequestDTO;
 import com.biblioteca.web.dto.MiembroResponseDTO;
@@ -46,11 +47,20 @@ public class MiembroResolver {
     // ==================== MUTATIONS ====================
 
     /**
-     * Crear nuevo miembro
+     * Crear nuevo miembro con login automático
      */
     @MutationMapping
-    public MiembroResponseDTO crearMiembro(@Argument MiembroRequestDTO input) {
-        log.info("GraphQL: Creando nuevo miembro: {}", input);
+    public AuthResponseDTO crearMiembro(@Argument MiembroRequestDTO input) {
+        log.info("GraphQL: Creando nuevo miembro con auth: {}", input);
+        return miembroService.createMiembroWithAuth(input);
+    }
+
+    /**
+     * Crear nuevo miembro (sin auth)
+     */
+    @MutationMapping
+    public MiembroResponseDTO crearMiembroSinAuth(@Argument MiembroRequestDTO input) {
+        log.info("GraphQL: Creando nuevo miembro sin auth: {}", input);
         return miembroService.create(input);
     }
 

@@ -284,7 +284,7 @@
 					}
 				},
 				{
-					"name": "➕ Crear Miembro",
+					"name": "➕ Crear Miembro (con Auth)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -295,7 +295,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"query\": \"mutation CrearMiembro($input: MiembroInput!) { crearMiembro(input: $input) { id nombre apellido direccion telefono fechaRegistro createdAt } }\",\n  \"variables\": {\n    \"input\": {\n      \"nombre\": \"Juan\",\n      \"apellido\": \"Pérez\",\n      \"direccion\": \"Av. Libertad 123\",\n      \"telefono\": \"555-0123\",\n      \"email\": \"juan.perez@email.com\",\n      \"password\": \"password123\"\n    }\n  }\n}"
+							"raw": "{\n  \"query\": \"mutation CrearMiembro($input: MiembroInput!) { crearMiembro(input: $input) { token user { id email } } }\",\n  \"variables\": {\n    \"input\": {\n      \"nombre\": \"Juan\",\n      \"apellido\": \"Pérez\",\n      \"direccion\": \"Av. Libertad 123\",\n      \"telefono\": \"555-0123\",\n      \"email\": \"juan.perez@email.com\",\n      \"password\": \"password123\"\n    }\n  }\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/graphql",
@@ -304,7 +304,31 @@
 							"port": "8080",
 							"path": ["graphql"]
 						},
-						"description": "Registrar un nuevo miembro en la biblioteca. NUEVO: Incluye email y password que crean automáticamente un Usuario asociado."
+						"description": "Registrar un nuevo miembro en la biblioteca con autenticación automática. Retorna token JWT para login inmediato. Incluye email y password que crean automáticamente un Usuario asociado."
+					}
+				},
+				{
+					"name": "➕ Crear Miembro (sin Auth)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation CrearMiembroSinAuth($input: MiembroInput!) { crearMiembroSinAuth(input: $input) { id nombre apellido direccion telefono fechaRegistro createdAt } }\",\n  \"variables\": {\n    \"input\": {\n      \"nombre\": \"Roberto\",\n      \"apellido\": \"González\",\n      \"direccion\": \"Calle Principal 456\",\n      \"telefono\": \"555-0456\",\n      \"email\": \"roberto.gonzalez@email.com\",\n      \"password\": \"password456\"\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Registrar un nuevo miembro en la biblioteca sin autenticación automática. Solo retorna los datos del miembro creado. Útil para registro administrativo."
 					}
 				},
 				{
@@ -1218,13 +1242,23 @@
 					"if (pm.response.json() && pm.response.json().data && pm.response.json().data.login) {",
 					"    const token = pm.response.json().data.login.token;",
 					"    pm.environment.set('jwt_token', token);",
-					"    console.log('JWT Token saved:', token);",
+					"    console.log('JWT Token saved from login:', token);",
 					"}",
 					"",
+					"// Auto-extract JWT token from registration responses",
 					"if (pm.response.json() && pm.response.json().data && pm.response.json().data.registrar) {",
 					"    const token = pm.response.json().data.registrar.token;",
 					"    pm.environment.set('jwt_token', token);",
 					"    console.log('JWT Token saved from registration:', token);",
+					"}",
+					"",
+					"// Auto-extract JWT token from member creation with auth",
+					"if (pm.response.json() && pm.response.json().data && pm.response.json().data.crearMiembro) {",
+					"    const token = pm.response.json().data.crearMiembro.token;",
+					"    if (token) {",
+					"        pm.environment.set('jwt_token', token);",
+					"        console.log('JWT Token saved from member creation:', token);",
+					"    }",
 					"}"
 				]
 			}

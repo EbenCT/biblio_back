@@ -1,5 +1,8 @@
 package com.biblioteca.domain.service;
 
+import com.biblioteca.auth.dto.AuthResponseDTO;
+import com.biblioteca.auth.dto.RegisterRequestDTO;
+import com.biblioteca.auth.service.AuthService;
 import com.biblioteca.domain.model.Miembro;
 import com.biblioteca.domain.model.Usuario;
 import com.biblioteca.domain.repository.MiembroRepository;
@@ -29,9 +32,44 @@ public class MiembroService {
 
     private final MiembroRepository miembroRepository;
     private final UsuarioRepository usuarioRepository;
+    private final AuthService authService;
 
     /**
-     * Crear nueva entidad Miembro
+     * Crear nuevo miembro con usuario y devolver AuthResponse (login automático)
+     */
+    public AuthResponseDTO createMiembroWithAuth(MiembroRequestDTO requestDTO) {
+        log.info("Creando nuevo miembro con login automático: {}", requestDTO);
+
+        if (requestDTO.getEmail() == null || requestDTO.getPassword() == null) {
+            throw new RuntimeException("Email y password son requeridos para crear miembro con autenticación");
+        }
+
+        // 1. Crear usuario usando AuthService (cifra password y genera token)
+        RegisterRequestDTO registerRequest = new RegisterRequestDTO();
+        registerRequest.setEmail(requestDTO.getEmail().trim());
+        registerRequest.setPassword(requestDTO.getPassword());
+        
+        AuthResponseDTO authResponse = authService.register(registerRequest);
+        
+        // 2. Crear miembro y asociarlo al usuario
+        Miembro entity = new Miembro();
+        mapRequestToEntity(requestDTO, entity);
+        
+        // Obtener el usuario creado por AuthService
+        Usuario usuario = usuarioRepository.findByEmail(requestDTO.getEmail().trim())
+            .orElseThrow(() -> new RuntimeException("Error al obtener usuario creado"));
+        
+        entity.setUsuario(usuario);
+        
+        Miembro savedEntity = miembroRepository.save(entity);
+        
+        log.info("Miembro creado con ID: {} y login automático exitoso", savedEntity.getId());
+        
+        return authResponse; // Devolver el token y datos de autenticación
+    }
+
+    /**
+     * Crear nueva entidad Miembro (método original)
      */
     public MiembroResponseDTO create(MiembroRequestDTO requestDTO) {
         log.info("Creando nueva entidad Miembro: {}", requestDTO);
@@ -39,18 +77,24 @@ public class MiembroService {
         Miembro entity = new Miembro();
         mapRequestToEntity(requestDTO, entity);
 
-        // Si se proporcionan email y password, crear usuario automáticamente
+        // Si se proporcionan email y password, usar AuthService para crear usuario
         if (requestDTO.getEmail() != null && requestDTO.getPassword() != null) {
-            log.info("Creando usuario automáticamente para miembro: {}", requestDTO.getEmail());
+            log.info("Creando usuario usando AuthService para miembro: {}", requestDTO.getEmail());
             
-            Usuario usuario = new Usuario();
-            usuario.setEmail(requestDTO.getEmail().trim());
-            usuario.setPassword(requestDTO.getPassword()); // En producción, encriptar la contraseña
+            // Usar AuthService que ya maneja cifrado y validaciones
+            RegisterRequestDTO registerRequest = new RegisterRequestDTO();
+            registerRequest.setEmail(requestDTO.getEmail().trim());
+            registerRequest.setPassword(requestDTO.getPassword());
             
-            Usuario savedUsuario = usuarioRepository.save(usuario);
-            entity.setUsuario(savedUsuario);
+            AuthResponseDTO authResponse = authService.register(registerRequest);
             
-            log.info("Usuario creado automáticamente con ID: {}", savedUsuario.getId());
+            // Obtener el usuario creado por AuthService
+            Usuario usuario = usuarioRepository.findByEmail(requestDTO.getEmail().trim())
+                .orElseThrow(() -> new RuntimeException("Error al obtener usuario creado"));
+            
+            entity.setUsuario(usuario);
+            
+            log.info("Usuario creado usando AuthService con ID: {}", usuario.getId());
         }
 
         Miembro savedEntity = miembroRepository.save(entity);
