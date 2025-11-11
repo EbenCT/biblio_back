@@ -52,7 +52,7 @@ public class AccesoBiblioteca {
     private Boolean estado;
 
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "miembro_id")
     private Miembro miembro;
 
