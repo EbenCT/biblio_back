@@ -28,6 +28,9 @@ public interface MiembroRepository extends JpaRepository<Miembro, Long> {
     @Query("SELECT e FROM Miembro e WHERE e.id = :id")
     Optional<Miembro> findByIdSafe(@Param("id") Long id);
 
+    // Buscar miembro por userId
+    @Query("SELECT m FROM Miembro m WHERE m.usuario.id = :userId")
+    Optional<Miembro> findByUsuarioId(@Param("userId") Long userId);
 
     // TODO: Agregar métodos de consulta específicos según necesidades del negocio
     // Ejemplo:

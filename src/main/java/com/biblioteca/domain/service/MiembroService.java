@@ -117,6 +117,19 @@ public class MiembroService {
     }
 
     /**
+     * Obtener miembro por userId
+     */
+    @Transactional(readOnly = true)
+    public MiembroResponseDTO findByUsuarioId(Long userId) {
+        log.debug("Buscando Miembro con userId: {}", userId);
+
+        Miembro entity = miembroRepository.findByUsuarioId(userId)
+            .orElseThrow(() -> new EntityNotFoundException("No se encontró miembro asociado al usuario con ID: " + userId));
+
+        return mapEntityToResponse(entity);
+    }
+
+    /**
      * Obtener todas las entidades
      */
     @Transactional(readOnly = true)

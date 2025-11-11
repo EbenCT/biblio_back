@@ -284,6 +284,30 @@
 					}
 				},
 				{
+					"name": "👤 Obtener Miembro por User ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query ObtenerMiembroPorUserId($userId: ID!) { miembroPorUserId(userId: $userId) { id nombre apellido direccion telefono fechaRegistro createdAt updatedAt } }\",\n  \"variables\": {\n    \"userId\": \"1\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["graphql"]
+						},
+						"description": "Obtener información del miembro asociado a un usuario específico. Ideal para móvil después del login."
+					}
+				},
+				{
 					"name": "➕ Crear Miembro (con Auth)",
 					"request": {
 						"method": "POST",

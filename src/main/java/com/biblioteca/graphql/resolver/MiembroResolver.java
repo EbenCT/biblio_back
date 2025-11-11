@@ -44,6 +44,15 @@ public class MiembroResolver {
         return miembroService.findById(id);
     }
 
+    /**
+     * Obtener miembro por userId
+     */
+    @QueryMapping
+    public MiembroResponseDTO miembroPorUserId(@Argument Long userId) {
+        log.debug("GraphQL: Obteniendo miembro con userId: {}", userId);
+        return miembroService.findByUsuarioId(userId);
+    }
+
     // ==================== MUTATIONS ====================
 
     /**

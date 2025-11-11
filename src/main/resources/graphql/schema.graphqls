@@ -154,6 +154,7 @@ type Query {
     # Miembros
     miembros: [Miembro!]!
     miembro(id: ID!): Miembro
+    miembroPorUserId(userId: ID!): Miembro
     
     # Prestamos
     prestamos: [Prestamo!]!
